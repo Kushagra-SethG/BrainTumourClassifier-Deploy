@@ -1,3 +1,5 @@
+gradio
+
 # PyTorch (GPU version installed separately)
 torch
 torchvision
