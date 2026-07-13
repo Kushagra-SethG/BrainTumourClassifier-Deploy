@@ -1,3 +1,14 @@
+---
+title: Brain Tumour Classifier
+emoji: 🧠
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: "4.44.1"
+app_file: app.py
+pinned: false
+---
+
 # Brain Tumor Classifier
 
 NeuroScan AI is a brain tumor classification demo built around a PyTorch ResNet18 + CBAM model. For Hugging Face Spaces, the project is deployed as a single Gradio app that loads the model and serves the upload UI directly from Python.
