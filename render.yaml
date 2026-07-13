@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: brain-tumour-classifier
+    env: python
+    plan: starter
+    buildCommand: npm install --prefix frontend && npm run build --prefix frontend && pip install -r backend/requirements.txt
+    startCommand: uvicorn app:app --app-dir backend --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
+      - key: NODE_VERSION
+        value: 20.18.1

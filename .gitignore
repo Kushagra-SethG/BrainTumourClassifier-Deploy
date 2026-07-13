@@ -1,2 +1,5 @@
 .venv
 data/*
+frontend/dist/
+backend/__pycache__/
+*.pyc

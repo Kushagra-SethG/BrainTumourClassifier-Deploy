@@ -1,11 +1,14 @@
-import os
 import io
+import os
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 from fastapi import FastAPI, File, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
-from torchvision import transforms
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
+from torchvision import transforms
 
 # Model Definition
 def conv3x3(in_channels, out_channels, stride=1):
@@ -132,14 +135,10 @@ class ResNet18CBAM(nn.Module):
 
 app = FastAPI(title="Brain Tumor Classifier API")
 
-# Setup CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
+FRONTEND_INDEX_FILE = FRONTEND_DIST_DIR / "index.html"
+FRONTEND_ASSETS_DIR = FRONTEND_DIST_DIR / "assets"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -160,6 +159,28 @@ transform = transforms.Compose([
 ])
 
 CLASSES = ["Normal", "Tumor"]
+
+if FRONTEND_ASSETS_DIR.exists():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=str(FRONTEND_ASSETS_DIR)),
+        name="assets",
+    )
+
+
+@app.get("/")
+def serve_frontend():
+    if FRONTEND_INDEX_FILE.exists():
+        return FileResponse(FRONTEND_INDEX_FILE)
+    return {
+        "status": "ok",
+        "message": "Frontend build not found. Build frontend/ to serve the UI from this app.",
+    }
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -186,4 +207,5 @@ async def predict(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
