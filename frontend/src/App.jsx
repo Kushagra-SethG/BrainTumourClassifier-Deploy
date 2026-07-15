@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 'http://127.0.0.1:8000' : window.location.origin);
 function App() {
   const [activeTab, setActiveTab] = useState('scanner');
   const [dragActive, setDragActive] = useState(false);
@@ -61,7 +62,7 @@ function App() {
     formData.append('file', selectedImage);
     
     try {
-      const response = await fetch('http://localhost:8000/predict', {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
         method: 'POST',
         body: formData,
       });
@@ -74,7 +75,7 @@ function App() {
         setError(data.error || 'Prediction failed. Is the backend running?');
       }
     } catch (err) {
-      setError('Could not connect to the server. Ensure the backend is running on port 8000.');
+      setError(`Could not connect to the server at ${API_BASE_URL}. If frontend and backend are deployed separately, set VITE_API_BASE_URL to the backend service URL.`);
     } finally {
       setLoading(false);
     }

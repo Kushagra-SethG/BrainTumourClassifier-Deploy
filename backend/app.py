@@ -5,6 +5,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
@@ -134,6 +135,14 @@ class ResNet18CBAM(nn.Module):
         return x
 
 app = FastAPI(title="Brain Tumor Classifier API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
